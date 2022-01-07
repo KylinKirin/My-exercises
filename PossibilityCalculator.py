@@ -2,12 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
 import tkinter.messagebox
-
 mu0 = 0
 
 
 def stirling(n):
-    return (n/np.exp(1))**n*np.sqrt(2*np.pi*n)
+    return (n / np.exp(1)) ** n * np.sqrt(2 * np.pi * n)
 
 
 class Root:
@@ -36,16 +35,20 @@ class Root:
 
 
 class Distribution:
-    def __init__(self, leftlim, rightlim, typecons=True):
-        if leftlim == 0:
-            leftlim += 0.5
-        elif rightlim == 0:
-            rightlim -= 0.5
-        step = 1
+    def __init__(self, leftlim, rightlim, typecons):
+        step = 0.05
         if typecons:
-            step = 0.05
+            if leftlim == 0:
+                leftlim += 0.5
+            elif rightlim == 0:
+                rightlim -= 0.5
+        else:
+            step = 1
+            leftlim = 0.1
+            rightlim += 1
+
         self.x = np.arange(leftlim, rightlim, step)
-        self.y = None
+        self.y = self.x
 
 
 class Poisson(Distribution):
@@ -54,10 +57,7 @@ class Poisson(Distribution):
         self.lamda = lamda
 
     def density(self):
-        try:
-            self.y = ((self.lamda ** self.x) * np.exp(-self.lamda)) / stirling(self.x)
-        except RuntimeWarning:
-            print("0")
+        self.y = ((self.lamda ** self.x) * np.exp(-self.lamda)) / stirling(self.x)
         return self.x, self.y
 
 
@@ -92,16 +92,12 @@ def selectnorm():
     def getmu():
         global mu0
         try:
-            try:
-                mu0 = float(root1.entry.get())
-            except ValueError:
-                root1.entry.delete(0, tk.END)
-                tkinter.messagebox.showinfo("Error", "Integers pls!!")
-                return
-            root1.root.destroy()
+            mu0 = float(root1.entry.get())
         except ValueError:
-            mu0 = 0
-            root1.root.destroy()
+            root1.entry.delete(0, tk.END)
+            tkinter.messagebox.showinfo("Error", "Integers pls!!")
+            return
+        root1.root.destroy()
 
     root1.setbutton(getmu, "Apply")
     root1.loop()
@@ -140,7 +136,7 @@ def selectpo():
             return
 
         root1.root.destroy()
-        px, py = Poisson(lamda, 0, 20*lamda).density()
+        px, py = Poisson(lamda, 0, 5*lamda).density()
         drawdisc(px, py)
 
     root1.setbutton(getvalue)

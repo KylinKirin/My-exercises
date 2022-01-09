@@ -35,10 +35,10 @@ def ifwin(choice, rival):
     elif choice == 0:
         if rival == 1:
             label.destroy()
-            return 1
+            return 0
         elif rival == 2:
             label.destroy()
-            return 0
+            return 1
     elif choice == 1:
         if rival == 2:
             label.destroy()
@@ -57,7 +57,7 @@ def game(result):
     global count
     global win
     global lost
-    print(riv)
+    # print(riv)
     label0 = tkinter.Label(text="Rival: "+riv_dic[riv], font=20)
     label0.place(x=170, y=20)
     count += 1

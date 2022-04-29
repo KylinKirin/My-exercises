@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
@@ -117,12 +116,11 @@ def selectnorm():
         global mu0
         try:
             mu0 = float(root1.entry.get())
+            root1.root.destroy()
         except ValueError:
             root1.entry.delete(0, tk.END)
             tkinter.messagebox.showinfo("Error", "Integers pls!!")
             return
-        root1.root.destroy()
-
     root1.setbutton(getmu, "Apply")
     root1.loop()
     root2 = Root("Parameter2")
@@ -134,15 +132,13 @@ def selectnorm():
             sigma = float(root2.entry.get())
             if sigma < 0:
                 raise ValueError
+            root2.root.destroy()
         except ValueError:
             root2.entry.delete(0, tk.END)
             tkinter.messagebox.showinfo("Error", " + Num pls!!")
             return
         nx, ny = NormalDistribution(mu0, sigma, mu0-sigma*5, mu0+sigma*5).density()
         drawcons(nx, ny)
-        root2.root.iconify()
-        root2.root.destroy()
-
     root2.setbutton(getsigma, "Apply")
     root2.loop()
 

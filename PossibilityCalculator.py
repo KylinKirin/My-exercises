@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 import tkinter.messagebox
 mu0 = 0
-N, P = 0, 0
+N, P = None, None
+do = False
 
 
 def stirling(n):
@@ -13,9 +14,13 @@ def stirling(n):
 class Root:
     def __init__(self, title=""):
         self.root = tk.Tk()
-        self.root.maxsize(320, 200)
-        self.root.minsize(320, 200)
+        self.w, self.h = 400, 320
+        self.root.maxsize(self.w, self.h)
+        self.root.minsize(self.w, self.h)
+        self.root.attributes("-topmost")
         self.root.title(title)
+        self.ws, self.hs = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        self.root.geometry('%dx%d+%d+%d' % (self.w, self.h, (self.ws-self.w)/2, (self.hs-self.h)/2))
         self.entry = None
 
     def loop(self):
@@ -107,40 +112,44 @@ def drawdisc(_x, _y):
 
 
 def selectnorm():
+    global mu0, do
     root0.root.destroy()
     root1 = Root("Parameter1")
     root1.setlabel("Mu")
     root1.setentry()
 
     def getmu():
-        global mu0
+        global do, mu0
         try:
             mu0 = float(root1.entry.get())
             root1.root.destroy()
+            do = True
         except ValueError:
             root1.entry.delete(0, tk.END)
-            tkinter.messagebox.showinfo("Error", "Integers pls!!")
+            tkinter.messagebox.showinfo("Error", "Nums pls!!")
             return
     root1.setbutton(getmu, "Apply")
     root1.loop()
-    root2 = Root("Parameter2")
-    root2.setlabel("Sigma")
-    root2.setentry()
+    if do:
+        root2 = Root("Parameter2")
+        root2.setlabel("Sigma")
+        root2.setentry()
 
-    def getsigma():
-        try:
-            sigma = float(root2.entry.get())
-            if sigma < 0:
-                raise ValueError
-            root2.root.destroy()
-        except ValueError:
-            root2.entry.delete(0, tk.END)
-            tkinter.messagebox.showinfo("Error", " + Num pls!!")
-            return
-        nx, ny = NormalDistribution(mu0, sigma, mu0-sigma*5, mu0+sigma*5).density()
-        drawcons(nx, ny)
-    root2.setbutton(getsigma, "Apply")
-    root2.loop()
+        def getsigma():
+            try:
+                sigma = float(root2.entry.get())
+                if sigma <= 0:
+                    raise ValueError
+                root2.root.destroy()
+            except ValueError:
+                root2.entry.delete(0, tk.END)
+                tkinter.messagebox.showinfo("Error", " + Num pls!!")
+                return
+            nx, ny = NormalDistribution(mu0, sigma, mu0 - sigma * 5, mu0 + sigma * 5).density()
+            drawcons(nx, ny)
+
+        root2.setbutton(getsigma, "Apply")
+        root2.loop()
 
 
 def selectpo():
@@ -152,7 +161,7 @@ def selectpo():
     def getvalue():
         try:
             lamda = float(root1.entry.get())
-            if lamda < 0:
+            if lamda <= 0:
                 raise ValueError
         except ValueError:
             root1.entry.delete(0, tk.END)
@@ -176,7 +185,7 @@ def selectexp():
     def getvalue():
         try:
             lamda = float(root1.entry.get())
-            if lamda < 0:
+            if lamda <= 0:
                 raise lamda
         except ValueError:
             root1.entry.delete(0, tk.END)
@@ -190,21 +199,21 @@ def selectexp():
     root1.loop()
 
 
-def selectmulti():
-    global N
-    global P
+def selectbin():
+    global N, P, do
     root0.root.destroy()
     root1 = Root("Parameter")
     root1.setlabel("N")
     root1.setentry()
 
     def get_n():
-        global N
+        global N, do
         try:
             N = int(root1.entry.get())
             if N <= 0:
                 raise ValueError
             root1.root.destroy()
+            do = True
         except ValueError:
             root1.entry.delete(0, tk.END)
             tkinter.messagebox.showinfo("Error", "Integers pls!!")
@@ -212,35 +221,37 @@ def selectmulti():
 
     root1.setbutton(get_n, "Apply")
     root1.loop()
-    root2 = Root("Parameter")
-    root2.setlabel("P")
-    root2.setentry()
+    if do:
+        root2 = Root("Parameter2")
+        root2.setlabel("P")
+        root2.setentry()
 
-    def get_p():
-        try:
-            global P
-            P = float(root2.entry.get())
-            if P < 0 or P > 1:
-                raise ValueError
-            root2.root.destroy()
-        except ValueError:
-            root2.entry.delete(0, tk.END)
-            tkinter.messagebox.showinfo("Error", "Possibility pls")
-            return
-    root2.setbutton(get_p, "Apply")
-    root2.loop()
-    px, py = BinomialDistribution(N, P, leftlim=0, rightlim=N).density()
-    drawdisc(px, py)
+        def get_p():
+            try:
+                global P
+                P = float(root2.entry.get())
+                if P <= 0 or P >= 1:
+                    raise ValueError
+                root2.root.destroy()
+            except ValueError:
+                root2.entry.delete(0, tk.END)
+                tkinter.messagebox.showinfo("Error", "(0,1)Possibility pls")
+                return
+
+        root2.setbutton(get_p, "Apply")
+        root2.loop()
+        px, py = BinomialDistribution(N, P, leftlim=0, rightlim=N).density()
+        drawdisc(px, py)
 
 
 if __name__ == "__main__":
-    root0 = Root("Distribution")
+    root0 = Root("Possibility Distribution Viewer")
     root0.setlabel("Possion Distritution")
     root0.setbutton(selectpo)
-    root0.setlabel("Normal Distribution")
-    root0.setbutton(selectnorm)
     root0.setlabel("Exponential Distribution")
     root0.setbutton(selectexp)
+    root0.setlabel("Normal Distribution")
+    root0.setbutton(selectnorm)
     root0.setlabel("Binomial Distribution")
-    root0.setbutton(selectmulti)
+    root0.setbutton(selectbin)
     root0.loop()

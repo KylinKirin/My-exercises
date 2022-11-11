@@ -14,7 +14,7 @@ def search_prime(n):
 
 
 def is_prime(n):
-    if n in search_prime(n):
+    if n in primes_list:
         return True
     return False
 
@@ -33,11 +33,12 @@ def prime_factorization(n):
             while (temp > 1)&(temp % i == 0):
                 res.append(i)
                 temp /= i
-    res.sort()
     if len(res)==1:
         if res[0] == n:print(str(n)+" is prime.")
     else:print(str(n)+" = "+print_format(res))
 
 
 if __name__ == '__main__':
-    prime_factorization(88)
+    num = int(input())
+    primes_list = search_prime(num)
+    prime_factorization(num)

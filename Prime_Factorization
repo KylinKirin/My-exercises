@@ -1,0 +1,43 @@
+
+def search_prime(n):
+    primes = []
+    if n > 1:
+        primes.append(2)
+    else:return
+    for i in range(2, n+1):
+        for j in primes:
+            if i % j == 0:
+                break
+        else:
+            primes.append(i)
+    return primes
+
+
+def is_prime(n):
+    if n in search_prime(n):
+        return True
+    return False
+
+
+def print_format(arr):
+    if len(arr) > 1:
+        return str(arr[0])+"x"+print_format(arr[1:])
+    elif len(arr) == 1 :return str(arr[0])
+
+def prime_factorization(n):
+    res = []
+    temp = n
+    if not n>1:return
+    for i in range(2, n+1):
+        if is_prime(i):
+            while (temp > 1)&(temp % i == 0):
+                res.append(i)
+                temp /= i
+    res.sort()
+    if len(res)==1:
+        if res[0] == n:print(str(n)+" is prime.")
+    else:print(str(n)+" = "+print_format(res))
+
+
+if __name__ == '__main__':
+    prime_factorization(88)
